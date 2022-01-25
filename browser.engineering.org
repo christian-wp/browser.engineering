@@ -1,0 +1,123 @@
+#+title: Web Browser Engineering
+#+author: Pavel Panchekha
+#+author: Chris Harrelson
+
+#+chapter i preface
+
+#+chapter ii browsers and the web
+
+* The browser and me
+
+* The web in history
+
+* Real browser codebases
+
+* Browser code concepts
+
+HTML, CSS, HTTP, hyperlinks, and JavaScript
+
+* The role of the browser
+
+* Browsers and you
+
+#+chapter iii history of the web
+
+* The Memex concept
+
+The web is at its core organized around the Memex-like goal of /representing and displaying information/, providing a way for humans to effectively learn and explore.
+
+* The web emerges
+
+Hypertext and hyperlinks were invented in 1964 by the Ted Nelson led Project Xanadu.
+
+The [[http://info.cern.ch/hypertext/WWW/TheProject.html][oldest web page]] is only 30 years old! And it looks the same today! No CSS!
+
+"They could start linking together their information without making any other changes."
+
+* Browsers
+
+ViolaWWW, the first widely distributed browser, introduced applets and images.
+
+CSS, DOM, and JavaScript were all introduced during the first browser war.
+
+* Web standards
+
+The process for introducing web standards by committee has remained the same since the 90s.
+
+"World Wide Web" is anachronistic because the web is no longer just a document viewing network.
+
+* Open source
+
+* Putting it all together
+
+The pace of innovation has not slowed.
+
+* Exercises
+
+What comes next: The personal computer will evolve into a browser.
+
+What became of the original ideas? Setting up web services requires technical knowledge. It's more profitable for corporations to move users into a walled garden than encourage their use of the web in a Memex-like fashion. Memex seemed like more of a VR system than the web as it exists today.
+
+#+part 1 drawing graphics
+
+#+chapter 1 downloading web pages
+
+* Connecting to a server
+
+* Requesting information
+
+* The server's response
+
+* Telnet in Python
+
+Some properties of sockets:
+1. An /address family/ that tells you how to find the other computer, like `AF_INET` or
+   `AF_BLUETOOTH`.
+1. A /type/ like `SOCK_STREAM` or `SOCK_DGRAM`.
+1. A /protocol/ like `IPPROTO_TCP`.
+
+* Request and response
+
+Calling `send` returns the number of bytes you send to the other computer.
+
+* Displaying the HTML
+
+HTML has /tags/, /text/, /attributes/.
+
+* Encrypted connections
+
+* Summary
+
+* Outline
+
+* Exercises
+
+#+chapter 2 drawing to the screen
+
+#+chapter 3 formatting text
+
+#+part 2 viewing documents
+
+#+chapter 4 constructing a document tree
+
+#+chapter 5 laying out pages
+
+#+chapter 6 applying user styles
+
+#+chapter 7 handling buttons and links
+
+#+part 3 running applications
+
+#+chapter 8 sending information to servers
+
+#+chapter 9 running interactive scripts
+
+#+chapter 10 keeping data private
+
+#+part 4 modern browsers
+
+#+chapter 11 adding visual effects
+
+#+chapter 12 scheduling and threading
+
+#+chapter 13 saving partial layouts
