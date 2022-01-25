@@ -86,12 +86,6 @@ HTML has /tags/, /text/, /attributes/.
 
 * Encrypted connections
 
-* Summary
-
-* Outline
-
-* Exercises
-
 #+chapter 2 drawing to the screen
 
 #+chapter 3 formatting text
