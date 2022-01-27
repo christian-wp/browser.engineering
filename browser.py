@@ -9,7 +9,14 @@ def add_headers(headers):
     return bytes(joined, encoding="utf8")
 
 def request(url):
-    scheme, url = url.split("://", 1)
+
+    scheme, url = url.split(":", 1)
+
+    if scheme == "data":
+        mediatype, data = url.split(',', 1)
+        return {}, data
+
+    _, authority, url = url.split("/", 2)
 
     if scheme == "file":
         with open(url) as f:
