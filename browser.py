@@ -3,14 +3,18 @@ import ssl
 import sys
 import urllib.parse
 
-def addHeaders(headers):
+def add_headers(headers):
     headers.append("\r\n")
     joined = "\r\n".join(headers)
-    print("joined", joined)
     return bytes(joined, encoding="utf8")
 
 def request(url):
     scheme, url = url.split("://", 1)
+
+    if scheme == "file":
+        with open(url) as f:
+            return {}, f.read()
+
     assert scheme in ["http", "https"], \
         "Unknown scheme {}".format(scheme)
     host, path = url.split("/", 1)
@@ -33,7 +37,7 @@ def request(url):
         ctx = ssl.create_default_context()
         s = ctx.wrap_socket(s, server_hostname=host)
 
-    s.send(addHeaders([
+    s.send(add_headers([
         "GET {} HTTP/1.1".format(path),
         "Host: {}".format(host),
         "Connection: close",
