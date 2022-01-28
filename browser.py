@@ -69,13 +69,17 @@ def request(url):
 def show(body):
     in_angle = False
     in_body = False
-    for i, c in enumerate(body):
+    tag = ""
+    for c in body:
         if c == "<":
             in_angle = True
         elif c == ">":
-            if body[i-4:i] == "body":
-                in_body = not in_body
             in_angle = False
+            if tag == "body": in_body = True
+            if tag == "/body": in_body = False
+            tag = ""
+        elif in_angle:
+            tag += c
         elif in_body and not in_angle:
             print(c, end="")
 
