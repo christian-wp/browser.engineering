@@ -48,7 +48,7 @@ def request(url):
         "GET {} HTTP/1.1".format(path),
         "Host: {}".format(host),
         "Connection: close",
-        "User-Agent: Weeb/0.0"
+        "User-Agent: BE/0.0"
     ]))
     response = s.makefile("r", encoding="utf8", newline="\r\n")
     statusline = response.readline()
