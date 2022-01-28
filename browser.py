@@ -68,12 +68,15 @@ def request(url):
 
 def show(body):
     in_angle = False
-    for c in body:
+    in_body = False
+    for i, c in enumerate(body):
         if c == "<":
             in_angle = True
         elif c == ">":
+            if body[i-4:i] == "body":
+                in_body = not in_body
             in_angle = False
-        elif not in_angle:
+        elif in_body and not in_angle:
             print(c, end="")
 
 def load(url):
