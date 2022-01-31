@@ -66,9 +66,13 @@ def request(url):
     s.close()
     return headers, body
 
+def is_html_document(body):
+    doctype = "<!doctype html>"
+    return body[0:len(doctype)].lower() == doctype 
+
 def show(body):
     in_angle = False
-    in_body = False
+    in_body = not is_html_document(body)
     tag = ""
     for c in body:
         if c == "<":
