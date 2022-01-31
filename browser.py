@@ -10,6 +10,10 @@ def add_headers(headers):
 
 def request(url):
 
+    if not url:
+        with open("home.html") as f:
+            return {}, f.read()
+
     scheme, url = url.split(":", 1)
 
     if scheme == "data":
@@ -92,4 +96,7 @@ def load(url):
     show(body)
 
 if __name__ == "__main__":
-    load(sys.argv[1])
+    url = ""
+    if 1 < len(sys.argv):
+        url = sys.argv[1]
+    load(url)
