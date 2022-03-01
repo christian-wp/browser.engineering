@@ -75,8 +75,10 @@ def is_html_document(body):
     return body[0:len(doctype)].lower() == doctype 
 
 def show(body):
+    entity = ""
     in_angle = False
     in_body = not is_html_document(body)
+    in_entity = False
     tag = ""
     for c in body:
         if c == "<":
@@ -89,7 +91,25 @@ def show(body):
         elif in_angle:
             tag += c
         elif in_body and not in_angle:
-            print(c, end="")
+            if c == "&":
+                in_entity = True
+                entity = c
+            elif in_entity:
+                entity += c
+                if 4 < len(entity):
+                    print(c, end="")
+                    entity = ""
+                    in_entity = False
+                elif entity == "&lt;":
+                    print("<", end="")
+                    entity = ""
+                    in_entity = False
+                elif entity == "&gt;":
+                    print(">", end="")
+                    entity = ""
+                    in_entity = False
+            else: 
+                print(c, end="")
 
 def load(url):
     headers, body = request(url)
