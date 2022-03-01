@@ -3,6 +3,8 @@ import ssl
 import sys
 import urllib.parse
 
+view_source = False
+
 def add_headers(headers):
     headers.append("\r\n")
     joined = "\r\n".join(headers)
@@ -19,6 +21,11 @@ def request(url):
     if scheme == "data":
         mediatype, data = url.split(',', 1)
         return {}, data
+
+    if scheme == "view-source":
+        global view_source
+        view_source = True
+        scheme, url = url.split(":", 1)
 
     _, authority, url = url.split("/", 2)
 
@@ -111,9 +118,22 @@ def show(body):
             else: 
                 print(c, end="")
 
+def transform(body):
+    global view_source
+    if not view_source: return body
+    b = ""
+    for c in body:
+        if c == "<":
+            b += "&lt;"
+        elif c == ">":
+            b += "&gt;"
+        else:
+            b += c
+    return b
+
 def load(url):
     headers, body = request(url)
-    show(body)
+    show(transform(body))
 
 if __name__ == "__main__":
     url = ""
