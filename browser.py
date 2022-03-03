@@ -11,6 +11,15 @@ def add_headers(headers):
     joined = "\r\n".join(headers)
     return bytes(joined, encoding="utf8")
 
+def response_headers(response):
+    headers = {}
+    while True:
+        line = str(response.readline(), encoding="utf-8")
+        if line == "\r\n": break
+        header, value = line.split(":", 1)
+        headers[header.lower()] = value.strip()
+    return headers
+
 def request(url):
 
     if not url:
@@ -66,15 +75,13 @@ def request(url):
     response = s.makefile("rb", newline=b"\r\n")
     statusline = str(response.readline(), encoding="utf-8")
     version, status, explanation = statusline.split(" ", 2)
+    if status == "301":
+        return request(response_headers(response)["location"])
     assert status == "200", "{}: {}".format(status, explanation)
-    headers = {}
-    
-    while True:
-        line = str(response.readline(), encoding="utf-8")
-        if line == "\r\n": break
-        header, value = line.split(":", 1)
-        headers[header.lower()] = value.strip()
 
+    headers = response_headers(response)
+    print(headers)
+    sys.exit()
     body = str(gzip.decompress(response.read()), encoding="utf-8")
     s.close()
     return headers, body
