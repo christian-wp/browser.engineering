@@ -64,15 +64,15 @@ def request(url):
         "Accept-Encoding: gzip"
     ]))
     response = s.makefile("rb", newline=b"\r\n")
-    statusline = response.readline()
-    version, status, explanation = statusline.split(b" ", 2)
-    assert status == b"200", "{}: {}".format(status, explanation)
+    statusline = str(response.readline(), encoding="utf-8")
+    version, status, explanation = statusline.split(" ", 2)
+    assert status == "200", "{}: {}".format(status, explanation)
     headers = {}
     
     while True:
-        line = response.readline()
-        if line == b"\r\n": break
-        header, value = line.split(b":", 1)
+        line = str(response.readline(), encoding="utf-8")
+        if line == "\r\n": break
+        header, value = line.split(":", 1)
         headers[header.lower()] = value.strip()
 
     body = str(gzip.decompress(response.read()), encoding="utf-8")
