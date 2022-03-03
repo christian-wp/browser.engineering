@@ -1,3 +1,4 @@
+import gzip
 import socket
 import ssl
 import sys
@@ -59,21 +60,22 @@ def request(url):
         "GET {} HTTP/1.1".format(path),
         "Host: {}".format(host),
         "Connection: close",
-        "User-Agent: BE/0.0"
+        "User-Agent: BE/0.0",
+        "Accept-Encoding: gzip"
     ]))
-    response = s.makefile("r", encoding="utf8", newline="\r\n")
+    response = s.makefile("rb", newline=b"\r\n")
     statusline = response.readline()
-    version, status, explanation = statusline.split(" ", 2)
-    assert status == "200", "{}: {}".format(status, explanation)
+    version, status, explanation = statusline.split(b" ", 2)
+    assert status == b"200", "{}: {}".format(status, explanation)
     headers = {}
     
     while True:
         line = response.readline()
-        if line == "\r\n": break
-        header, value = line.split(":", 1)
+        if line == b"\r\n": break
+        header, value = line.split(b":", 1)
         headers[header.lower()] = value.strip()
 
-    body = response.read()
+    body = str(gzip.decompress(response.read()), encoding="utf-8")
     s.close()
     return headers, body
 
