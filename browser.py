@@ -20,6 +20,19 @@ def response_headers(response):
         headers[header.lower()] = value.strip()
     return headers
 
+def read_chunks(response):
+    body = ""
+    while True:
+        chunk_size = response.readline().split(b"\r\n")[0]
+        if not chunk_size: break
+        body += str(gzip.decompress(response.read(int(chunk_size, 16))), encoding="utf-8")
+    return body
+
+def response_body(response, headers):
+    if headers.get("transfer-encoding") == "chunked":
+        return read_chunks(response)
+    return str(gzip.decompress(response.read()), encoding="utf-8")
+
 def request(url):
 
     if not url:
@@ -80,9 +93,7 @@ def request(url):
     assert status == "200", "{}: {}".format(status, explanation)
 
     headers = response_headers(response)
-    print(headers)
-    sys.exit()
-    body = str(gzip.decompress(response.read()), encoding="utf-8")
+    body = response_body(response, headers)
     s.close()
     return headers, body
 
