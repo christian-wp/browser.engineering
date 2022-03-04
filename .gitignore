@@ -1,3 +1,4 @@
 *.*~
 *.org
 tmp/
+cache.pickle

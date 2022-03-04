@@ -3,8 +3,10 @@ import socket
 import ssl
 import sys
 import urllib.parse
+import pickle
 
 view_source = False
+cache = {}
 
 def add_headers(headers):
     headers.append("\r\n")
@@ -20,6 +22,19 @@ def response_headers(response):
         headers[header.lower()] = value.strip()
     return headers
 
+def parse_status_line(status_line):
+    return status_line.split(" ", 2)
+
+def cache_response(request_url, status_line, headers, body=""):
+    version, status, explanation = parse_status_line(status_line)
+    cache[request_url] = {
+        "version": version,
+        "status": status,
+        "explanation": explanation,
+        "headers": headers,
+        "body": body
+    }
+
 def read_chunks(response):
     body = ""
     while True:
@@ -34,6 +49,14 @@ def response_body(response, headers):
     return str(gzip.decompress(response.read()), encoding="utf-8")
 
 def request(url):
+    if cached_response := cache.get(url):
+        status = cached_response["status"]
+        if status == "301":
+            return request(cached_response["headers"].get("location"))
+        elif status == "200":
+            return cached_response["headers"], cached_response["body"]
+
+    request_url = url
 
     if not url:
         with open("home.html") as f:
@@ -86,15 +109,18 @@ def request(url):
         "Accept-Encoding: gzip"
     ]))
     response = s.makefile("rb", newline=b"\r\n")
-    statusline = str(response.readline(), encoding="utf-8")
-    version, status, explanation = statusline.split(" ", 2)
+    status_line = str(response.readline(), encoding="utf-8")
+    version, status, explanation = parse_status_line(status_line)
     if status == "301":
-        return request(response_headers(response)["location"])
+        headers = response_headers(response)
+        cache_response(request_url, status_line, headers)
+        return request(headers["location"])
     assert status == "200", "{}: {}".format(status, explanation)
 
     headers = response_headers(response)
     body = response_body(response, headers)
     s.close()
+    cache_response(request_url, status_line, headers, body)
     return headers, body
 
 def is_html_document(body):
@@ -155,8 +181,23 @@ def load(url):
     headers, body = request(url)
     show(transform(body))
 
+def load_cache():
+    global cache
+    try:
+        with open('cache.pickle', 'rb') as f:
+            cache = pickle.load(f)
+    except FileNotFoundError:
+        dump_cache()
+
+def dump_cache():
+    global cache
+    with open('cache.pickle', 'wb') as f:
+        pickle.dump(cache, f, protocol=0)
+
 if __name__ == "__main__":
+    load_cache()
     url = ""
     if 1 < len(sys.argv):
         url = sys.argv[1]
     load(url)
+    dump_cache()
