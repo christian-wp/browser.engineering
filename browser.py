@@ -26,6 +26,7 @@ def parse_status_line(status_line):
     return status_line.split(" ", 2)
 
 def cache_response(request_url, status_line, headers, body=""):
+    if headers.get("cache-control") == "no-store": return
     version, status, explanation = parse_status_line(status_line)
     cache[request_url] = {
         "version": version,
@@ -50,6 +51,8 @@ def response_body(response, headers):
 
 def request(url):
     if cached_response := cache.get(url):
+        print(cached_response["headers"])
+        sys.exit()
         status = cached_response["status"]
         if status == "301":
             return request(cached_response["headers"].get("location"))
