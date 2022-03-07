@@ -1,9 +1,10 @@
 import gzip
+import pickle
 import socket
 import ssl
 import sys
+import time
 import urllib.parse
-import pickle
 
 view_source = False
 cache = {}
@@ -25,6 +26,13 @@ def response_headers(response):
 def parse_status_line(status_line):
     return status_line.split(" ", 2)
 
+def expiration_time(headers):
+    cache_control = headers.get("cache-control")
+    if not cache_control: return None
+    if max_age := cache_control.split("=")[-1]:
+        return int(max_age) + int(time.time())
+    return None
+
 def cache_response(request_url, status_line, headers, body=""):
     if headers.get("cache-control") == "no-store": return
     version, status, explanation = parse_status_line(status_line)
@@ -33,7 +41,8 @@ def cache_response(request_url, status_line, headers, body=""):
         "status": status,
         "explanation": explanation,
         "headers": headers,
-        "body": body
+        "body": body,
+        "expiration": expiration_time(headers)
     }
 
 def read_chunks(response):
@@ -49,10 +58,15 @@ def response_body(response, headers):
         return read_chunks(response)
     return str(gzip.decompress(response.read()), encoding="utf-8")
 
-def request(url):
+def check_cache(url):
     if cached_response := cache.get(url):
-        print(cached_response["headers"])
-        sys.exit()
+        expiration = cached_response.get("expiration")
+        if expiration and int(time.time()) < expiration:
+            return cached_response
+    return None
+
+def request(url):
+    if cached_response := check_cache(url):
         status = cached_response["status"]
         if status == "301":
             return request(cached_response["headers"].get("location"))
