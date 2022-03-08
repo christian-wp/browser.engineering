@@ -4,10 +4,12 @@ import socket
 import ssl
 import sys
 import time
+import tkinter
 import urllib.parse
 
-view_source = False
+WIDTH, HEIGHT = 800, 600
 cache = {}
+view_source = False
 
 def add_headers(headers):
     headers.append("\r\n")
@@ -144,12 +146,13 @@ def is_html_document(body):
     doctype = "<!doctype html>"
     return body[0:len(doctype)].lower() == doctype 
 
-def show(body):
+def lex(body):
     entity = ""
     in_angle = False
     in_body = not is_html_document(body)
     in_entity = False
     tag = ""
+    text = ""
     for c in body:
         if c == "<":
             in_angle = True
@@ -167,19 +170,20 @@ def show(body):
             elif in_entity:
                 entity += c
                 if 4 < len(entity):
-                    print(c, end="")
+                    text += c
                     entity = ""
                     in_entity = False
                 elif entity == "&lt;":
-                    print("<", end="")
+                    text += "<"
                     entity = ""
                     in_entity = False
                 elif entity == "&gt;":
-                    print(">", end="")
+                    text += ">"
                     entity = ""
                     in_entity = False
             else: 
-                print(c, end="")
+                text += c
+    return text
 
 def transform(body):
     global view_source
@@ -196,7 +200,9 @@ def transform(body):
 
 def load(url):
     headers, body = request(url)
-    show(transform(body))
+    text = lex(transform(body))
+    for c in text:
+        self.canvas.create_text(100, 100, text=c)
 
 def load_cache():
     global cache
@@ -211,10 +217,31 @@ def dump_cache():
     with open('cache.pickle', 'wb') as f:
         pickle.dump(cache, f, protocol=0)
 
+class Browser:
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.canvas = tkinter.Canvas(
+            self.window,
+            width=WIDTH,
+            height=HEIGHT
+        )
+        self.canvas.pack()
+
+    def load(self, url):
+        self.canvas.create_rectangle(10, 20, 400, 300)
+        self.canvas.create_oval(100, 100, 150, 150)
+        self.canvas.create_text(200, 150, text="Hi!")
+
 if __name__ == "__main__":
     load_cache()
     url = ""
     if 1 < len(sys.argv):
         url = sys.argv[1]
     load(url)
-    dump_cache()
+'''
+
+if __name__ == "__main__":
+    import sys
+    Browser().load(sys.argv[1])
+    tkinter.mainloop()
+'''
