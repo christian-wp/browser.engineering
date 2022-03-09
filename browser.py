@@ -71,8 +71,10 @@ def request(url):
     if cached_response := check_cache(url):
         status = cached_response["status"]
         if status == "301":
+            print("cache 301")
             return request(cached_response["headers"].get("location"))
         elif status == "200":
+            print("cache 200")
             return cached_response["headers"], cached_response["body"]
 
     request_url = url
@@ -201,8 +203,7 @@ def transform(body):
 def load(url):
     headers, body = request(url)
     text = lex(transform(body))
-    for c in text:
-        self.canvas.create_text(100, 100, text=c)
+    #print(text)
 
 def load_cache():
     global cache
@@ -217,31 +218,10 @@ def dump_cache():
     with open('cache.pickle', 'wb') as f:
         pickle.dump(cache, f, protocol=0)
 
-class Browser:
-    def __init__(self):
-        self.window = tkinter.Tk()
-        self.canvas = tkinter.Canvas(
-            self.window,
-            width=WIDTH,
-            height=HEIGHT
-        )
-        self.canvas.pack()
-
-    def load(self, url):
-        self.canvas.create_rectangle(10, 20, 400, 300)
-        self.canvas.create_oval(100, 100, 150, 150)
-        self.canvas.create_text(200, 150, text="Hi!")
-
 if __name__ == "__main__":
     load_cache()
     url = ""
     if 1 < len(sys.argv):
         url = sys.argv[1]
     load(url)
-'''
-
-if __name__ == "__main__":
-    import sys
-    Browser().load(sys.argv[1])
-    tkinter.mainloop()
-'''
+    dump_cache()
