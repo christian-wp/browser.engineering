@@ -65,16 +65,15 @@ def check_cache(url):
         expiration = cached_response.get("expiration")
         if expiration and int(time.time()) < expiration:
             return cached_response
+        return cached_response
     return None
 
 def request(url):
     if cached_response := check_cache(url):
         status = cached_response["status"]
         if status == "301":
-            print("cache 301")
             return request(cached_response["headers"].get("location"))
         elif status == "200":
-            print("cache 200")
             return cached_response["headers"], cached_response["body"]
 
     request_url = url
@@ -203,7 +202,7 @@ def transform(body):
 def load(url):
     headers, body = request(url)
     text = lex(transform(body))
-    #print(text)
+    print(text)
 
 def load_cache():
     global cache
