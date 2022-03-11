@@ -148,6 +148,8 @@ def is_html_document(body):
     return body[0:len(doctype)].lower() == doctype 
 
 def lex(body):
+    if not is_html_document(body):
+        return body
     entity = ""
     in_angle = False
     in_body = not is_html_document(body)
